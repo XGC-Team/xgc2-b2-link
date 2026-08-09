@@ -1,0 +1,11 @@
+# Deploy overlay for G4 ground peer (transport half of B2 Adapter).
+robot_id: b2-01
+transport: zenoh
+tcp:
+  host: 0.0.0.0
+  port: 7448
+  role: server
+zenoh:
+  mode: peer
+  listen: [tcp/0.0.0.0:7447]
+  connect: []

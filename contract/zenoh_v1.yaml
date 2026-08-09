@@ -1,0 +1,116 @@
+# XGC2 B2 link — Zenoh key & payload contract v1
+# Owners: G3 (onboard forwarder) + G4 (ground B2 adapter)
+# Breaking change = bump version path and both sides.
+
+version: 1
+key_prefix_template: "xgc2/{robot_id}"
+
+# Relative keys under key_prefix_template
+channels:
+  up:
+    odom:
+      key: up/odom
+      encode: json_utf8
+      schema: odom_v1
+      default_max_hz: 15
+      domain: 0
+      source_topic: /b2/odom
+    joint_states:
+      key: up/joint_states
+      encode: json_utf8
+      schema: joint_states_v1
+      default_max_hz: 15
+      domain: 0
+      source_topic: /b2/joint_states
+    imu:
+      key: up/imu
+      encode: json_utf8
+      schema: imu_v1
+      default_max_hz: 10
+      domain: 0
+      source_topic: /b2/imu
+      enabled_by_default: false
+    power_summary:
+      key: up/power_summary
+      encode: json_utf8
+      schema: power_summary_v1
+      default_max_hz: 2
+      domain: 0
+      source_topic: /b2/battery
+      optional_field_source_topic: /b2/low_state
+      # Either source is summarized to the same bounded 2 Hz wire payload.
+    driver_status:
+      key: up/driver_status
+      encode: json_utf8
+      schema: driver_status_v1
+      default_max_hz: 1
+      domain: 0
+      source_topic: /b2/driver_status
+    odin_odom:
+      key: up/odin_odom
+      encode: json_utf8
+      schema: odom_v1
+      default_max_hz: 10
+      domain: 0
+      source_topic: /odin1/odometry
+      enabled_by_default: false
+    arm_slave_status:
+      key: up/arm_slave_status
+      encode: json_utf8
+      schema: arm_joint_states_v1
+      default_max_hz: 15
+      domain: 17
+      source_topic: /arm_slave_l_status
+      enabled_by_default: false
+    arm_forwarder_hb:
+      key: up/arm_forwarder_hb
+      encode: json_utf8
+      schema: forwarder_hb_v1
+      default_max_hz: 1
+      domain: 17
+      enabled_by_default: false
+    forwarder_hb:
+      key: up/forwarder_hb
+      encode: json_utf8
+      schema: forwarder_hb_v1
+      default_max_hz: 1
+      domain: 0
+  down:
+    cmd:
+      key: down/cmd
+      reserved: true
+      authorized: false
+      enabled_by_default: false
+
+schemas:
+  odom_v1:
+    fields: [v, t_ms, frame_id, child_frame_id, position, orientation, linear, angular]
+  joint_states_v1:
+    fields: [v, t_ms, frame_id, names, positions, velocities, efforts]
+  imu_v1:
+    fields: [v, t_ms, frame_id, orientation, angular_velocity, linear_acceleration]
+  power_summary_v1:
+    fields: [v, t_ms, soc, power_v, power_a, temperature_ntc1, temperature_ntc2]
+  driver_status_v1:
+    fields: [v, t_ms, level, summary, motion_enabled, command_stale, faults]
+  arm_joint_states_v1:
+    fields: [v, t_ms, frame_id, names, positions, velocities, efforts]
+  forwarder_hb_v1:
+    fields: [v, t_ms, robot_id, domain, channels, transport, uptime_ms, stats]
+
+transport:
+  preferred: zenoh
+  # Explicit LAB transport; never selected as an implicit Zenoh fallback.
+  tcp:
+    description: length-prefixed frames over TCP; same keys as Zenoh path
+    default_listen: "0.0.0.0:7448"
+  zenoh:
+    # d0 and d17 are two client sessions on one fabric, not two Zenoh networks.
+    forwarder:
+      mode: client
+      connect: ["tcp/core:7447"]
+      listen: []
+    ground_adapter:
+      mode: peer
+      connect: []
+      listen: ["tcp/0.0.0.0:7447"]

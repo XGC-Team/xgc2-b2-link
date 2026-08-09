@@ -1,0 +1,14 @@
+# Deploy overlay for the independent, read-only R5 source process.
+robot_id: b2-01
+ros_domain_id: 17
+rmw_implementation: rmw_fastrtps_cpp
+source_topic: /arm_slave_l_status
+transport: zenoh
+tcp:
+  host: core
+  port: 7448
+  role: client
+zenoh:
+  mode: client
+  listen: []
+  connect: [tcp/core:7447]

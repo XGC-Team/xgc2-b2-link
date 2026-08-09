@@ -1,0 +1,14 @@
+# Deploy overlay for G3 forwarder_d0 (also pass CLI flags).
+robot_id: b2-01
+transport: zenoh
+tcp:
+  host: core
+  port: 7448
+  role: client
+zenoh:
+  mode: client
+  listen: []
+  connect: [tcp/core:7447]
+enable_imu: false
+enable_odin_odom: false
+# v1 remote-station scope is strictly read-only; down/cmd stays reserved.
