@@ -6,7 +6,7 @@ kind: ros2-apt
 summary: >-
   Unitree B2 (and R5 arm status) cross-host link: onboard whitelist forwarder
   sharing one Zenoh/TCP key contract with the production Noetic B2 Adapter.
-  Python ground recovery is contract-test-only and is not a production peer.
+  The Python ground probe is contract-test-only and never recovers ROS.
 groups:
 - ros2
 - driver
