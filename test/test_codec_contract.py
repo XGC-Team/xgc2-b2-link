@@ -18,7 +18,8 @@ from xgc2_b2_link.codec import (
     unpack_json,
     validate_payload,
 )
-from xgc2_b2_link.contract import full_key, load_contract
+from xgc2_b2_link import contract as contract_module
+from xgc2_b2_link.contract import contract_path, full_key, load_contract
 from xgc2_b2_link.rate import RateGate
 from xgc2_b2_link.sim_models import ARM_URDF_JOINTS
 
@@ -44,6 +45,27 @@ def test_contract_is_json_only_and_command_is_reserved():
         "connect": [],
         "listen": ["tcp/0.0.0.0:7447"],
     }
+
+
+def test_installed_contract_resolves_through_ros_package_share(monkeypatch, tmp_path):
+    installed_module = tmp_path / "lib" / "python3.12" / "site-packages" / "xgc2_b2_link" / "contract.py"
+    installed_module.parent.mkdir(parents=True)
+    installed_module.touch()
+    package_share = tmp_path / "share" / "xgc2_b2_link"
+    expected = package_share / "contract" / "zenoh_v1.yaml"
+    expected.parent.mkdir(parents=True)
+    expected.write_text("version: 1\n", encoding="utf-8")
+
+    monkeypatch.delenv("XGC2_B2_LINK_CONTRACT", raising=False)
+    monkeypatch.setattr(contract_module, "__file__", str(installed_module))
+    monkeypatch.setattr(
+        contract_module,
+        "get_package_share_directory",
+        lambda package: str(package_share) if package == "xgc2_b2_link" else "",
+    )
+
+    assert contract_path() == expected
+    assert load_contract()["version"] == 1
 
 
 def test_keys():

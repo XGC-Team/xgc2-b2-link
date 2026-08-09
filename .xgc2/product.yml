@@ -1,7 +1,7 @@
 schema: xgc2.product.v1
 id: xgc2-b2-link
 name: XGC2 B2 Link (onboard forwarders)
-version: 0.1.1
+version: 0.1.2
 kind: ros2-apt
 summary: >-
   Unitree B2 (and R5 arm status) cross-host link: onboard whitelist forwarder
@@ -60,4 +60,4 @@ release:
   workflow: release.yml
   ci_workflow: ci.yml
   apt_versions:
-    noble: 0.1.1
+    noble: 0.1.2

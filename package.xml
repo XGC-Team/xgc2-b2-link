@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>xgc2_b2_link</name>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <description>
     G3 onboard read-only forwarders and shared G3/G4 Zenoh/TCP contract for Unitree B2.
     The included Python ground peer is a contract/dry-run tool, not production G4.

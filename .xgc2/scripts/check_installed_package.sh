@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROS_DISTRO="${XGC2_B2_ROS_DISTRO:-jazzy}"
 PACKAGE="ros-${ROS_DISTRO}-xgc2-b2-link"
-EXPECTED_VERSION="${EXPECTED_VERSION:-0.1.1}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-0.1.2}"
 PREFIX="/opt/ros/${ROS_DISTRO}"
 ROS_PACKAGE="xgc2_b2_link"
 
@@ -32,6 +32,15 @@ set +u
 source "$PREFIX/setup.bash"
 set -u
 [[ "$(ros2 pkg prefix "$ROS_PACKAGE")" == "$PREFIX" ]]
+python3 - <<'PY'
+from pathlib import Path
+
+from xgc2_b2_link.contract import contract_path, load_contract
+
+expected = Path("/opt/ros/jazzy/share/xgc2_b2_link/contract/zenoh_v1.yaml")
+assert contract_path() == expected, (contract_path(), expected)
+assert load_contract()["version"] == 1
+PY
 depends="$(dpkg-query -W -f='${Depends}' "$PACKAGE")"
 if grep -q 'b2-ros2-driver' <<<"$depends"; then
   echo "FIELD-only b2_ros2_driver must not be a hard package dependency" >&2

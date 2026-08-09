@@ -9,7 +9,7 @@ VERSION="${PACKAGE_VERSION:-$(
 )}"
 APT_BASE_URL="${XGC2_APT_BASE_URL:-https://xgc2.apt.xiaokang.ink}"
 DOCKER_IMAGE="${DOCKER_IMAGE:-ros:jazzy-ros-base-noble}"
-[[ "$VERSION" == "0.1.1" ]] || { echo "public gate is frozen to 0.1.1" >&2; exit 1; }
+[[ "$VERSION" == "0.1.2" ]] || { echo "public gate is frozen to 0.1.2" >&2; exit 1; }
 
 container_name="xgc2-b2-link-public-apt-$(date +%s)-$$"
 cleanup() { docker rm -f "$container_name" >/dev/null 2>&1 || true; }

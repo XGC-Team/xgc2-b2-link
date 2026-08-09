@@ -7,6 +7,11 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 try:
+    from ament_index_python.packages import get_package_share_directory
+except ImportError:  # pragma: no cover - source-only unit tests
+    get_package_share_directory = None
+
+try:
     import yaml
 except ImportError:  # pragma: no cover
     yaml = None
@@ -16,8 +21,13 @@ def contract_path() -> Path:
     env = os.environ.get("XGC2_B2_LINK_CONTRACT")
     if env:
         return Path(env)
-    here = Path(__file__).resolve().parent.parent
-    return here / "contract" / "zenoh_v1.yaml"
+    source_path = Path(__file__).resolve().parent.parent / "contract" / "zenoh_v1.yaml"
+    if source_path.is_file():
+        return source_path
+    if get_package_share_directory is None:
+        raise RuntimeError("ament_index_python is required to resolve the installed B2 link contract")
+    share_path = Path(get_package_share_directory("xgc2_b2_link"))
+    return share_path / "contract" / "zenoh_v1.yaml"
 
 
 def load_contract(path: Optional[Path] = None) -> Dict[str, Any]:
