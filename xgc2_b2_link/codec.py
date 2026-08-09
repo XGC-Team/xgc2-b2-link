@@ -131,13 +131,22 @@ def imu_json(message: Any) -> Dict[str, Any]:
 
 def driver_status_json(message: Any) -> Dict[str, Any]:
     statuses = list(getattr(message, "status", []) or [])
-    level = max((int(getattr(status, "level", 0)) for status in statuses), default=0)
+
+    def status_level(status: Any) -> int:
+        value = getattr(status, "level", 0)
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            if len(value) != 1:
+                raise ValueError("diagnostic status level must contain exactly one byte")
+            return value[0]
+        return int(value)
+
+    level = max((status_level(status) for status in statuses), default=0)
     summaries = [str(getattr(status, "message", "") or "") for status in statuses]
     summaries = [summary for summary in summaries if summary]
     values: Dict[str, str] = {}
     faults: List[str] = []
     for status in statuses:
-        if int(getattr(status, "level", 0)) >= 2:
+        if status_level(status) >= 2:
             name = str(getattr(status, "name", "driver") or "driver")
             message_text = str(getattr(status, "message", "") or "")
             faults.append(f"{name}: {message_text}".rstrip())

@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT))
 
 from xgc2_b2_link.codec import (
     arm_joint_states_json,
+    driver_status_json,
     forwarder_heartbeat,
     joint_states_json,
     odom_json,
@@ -125,6 +126,17 @@ def test_standard_battery_state_normalizes_without_field_driver_messages():
     validate_payload("power_summary_v1", payload)
     assert payload["soc"] == 73
     assert payload["power_v"] == 47.5
+
+
+def test_driver_status_accepts_jazzy_uint8_byte_constants():
+    message = SimpleNamespace(
+        header=header(),
+        status=[SimpleNamespace(level=b"\x00", message="ready", name="driver", values=[])],
+    )
+    payload = driver_status_json(message)
+    validate_payload("driver_status_v1", payload)
+    assert payload["level"] == 0
+    assert payload["summary"] == "ready"
 
 
 def test_heartbeat_has_bounded_channel_stats():

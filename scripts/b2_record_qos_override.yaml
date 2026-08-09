@@ -1,0 +1,50 @@
+/arm_master_l_status:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/arm_slave_l_status:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/arm_master_r_status:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/arm_slave_r_status:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/b2/odom:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/b2/joint_states:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/b2/imu:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/odin1/image/compressed:
+  history: keep_last
+  depth: 5
+  reliability: best_effort
+  durability: volatile
+/tf:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: volatile
+/tf_static:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: transient_local
