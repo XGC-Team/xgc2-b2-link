@@ -106,6 +106,9 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Install compliance dependencies
+        run: sudo apt-get update && sudo apt-get install -y ripgrep python3-pytest python3-yaml
+
       - name: Run release checks
         run: |
           set -euo pipefail
@@ -132,6 +135,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+
+      - name: Install compliance dependencies
+        run: sudo apt-get update && sudo apt-get install -y ripgrep python3-pytest python3-yaml
 
       - name: Run source package checks
         run: .xgc2/scripts/check_package_compliance.sh
