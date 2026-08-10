@@ -21,8 +21,9 @@ from xgc2_b2_link.codec import (
 )
 from xgc2_b2_link import contract as contract_module
 from xgc2_b2_link.contract import contract_path, full_key, load_contract
+from xgc2_b2_link.forwarder_node import ForwarderCore
 from xgc2_b2_link.rate import RateGate
-from xgc2_b2_link.sim_models import ARM_URDF_JOINTS
+from xgc2_b2_link.sim_models import ARM_URDF_JOINTS, BASE_FRAME
 
 
 def header():
@@ -98,6 +99,29 @@ def test_joint_json_pads_arrays_and_validates_equal_lengths():
     payload["efforts"] = []
     with pytest.raises(ValueError, match="equal lengths"):
         validate_payload("joint_states_v1", payload)
+
+
+def test_forwarder_normalizes_empty_ros_joint_frame_to_frozen_b2_root():
+    class CaptureTransport:
+        def __init__(self):
+            self.frames = []
+
+        def put(self, key, payload):
+            self.frames.append((key, unpack_json(payload)))
+
+    transport = CaptureTransport()
+    forwarder = ForwarderCore("b2-01", transport, transport_name="tcp")
+    message = SimpleNamespace(
+        header=SimpleNamespace(stamp=SimpleNamespace(sec=1, nanosec=0), frame_id=""),
+        name=["FR_hip_joint"],
+        position=[0.0],
+        velocity=[0.0],
+        effort=[0.0],
+    )
+
+    assert forwarder.publish_joint_states(message) is True
+    assert transport.frames[0][0] == "xgc2/b2-01/up/joint_states"
+    assert transport.frames[0][1]["frame_id"] == BASE_FRAME
 
 
 def test_arm_status_expands_one_gripper_value_to_two_urdf_joints():

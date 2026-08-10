@@ -28,6 +28,7 @@ from xgc2_b2_link.runtime_config import (
     load_runtime_defaults,
     require_identity,
 )
+from xgc2_b2_link.sim_models import BASE_FRAME
 from xgc2_b2_link.transport import open_transport
 
 
@@ -173,7 +174,14 @@ class ForwarderCore:
         return self.publish_json("odom", odom_json(message))
 
     def publish_joint_states(self, message: Any) -> bool:
-        return self.publish_json("joint_states", joint_states_json(message))
+        # The field driver and some ROS 2 JointState publishers legitimately
+        # leave header.frame_id empty.  The frozen B2 wire does not: the ground
+        # Adapter rejects an empty joint-frame identity and therefore cannot
+        # declare the five required base telemetry sources live.  Normalize at
+        # the transport boundary to the B2 URDF root shared by LAB and FIELD.
+        return self.publish_json(
+            "joint_states", joint_states_json(message, frame_id=BASE_FRAME)
+        )
 
     def publish_imu(self, message: Any) -> bool:
         return self.publish_json("imu", imu_json(message))

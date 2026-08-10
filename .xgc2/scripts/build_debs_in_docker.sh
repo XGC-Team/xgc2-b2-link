@@ -9,6 +9,12 @@ DOCKER_IMAGE="${DOCKER_IMAGE:-ros:${ROS_DISTRO}-ros-base-${UBUNTU_CODENAME}}"
 WORK_DIR="${WORK_DIR:-${REPO_ROOT}/.work/docker-${ROS_DISTRO}}"
 OUTPUT_DIR="${OUTPUT_DIR:-${REPO_ROOT}/debs}"
 EXPECTED_ARCH="${EXPECTED_ARCH:-}"
+PACKAGE_VERSION="${PACKAGE_VERSION:-}"
+HOST_UID="$(id -u)"
+HOST_GID="$(id -g)"
+readonly HOST_UID HOST_GID
+[[ "$HOST_UID" =~ ^[0-9]+$ && "$HOST_GID" =~ ^[0-9]+$ ]] \
+  || { echo "host uid/gid must be numeric" >&2; exit 1; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -26,6 +32,9 @@ mkdir -p "$WORK_DIR" "$OUTPUT_DIR"
 docker run --rm \
   -e DEBIAN_FRONTEND=noninteractive \
   -e EXPECTED_ARCH="$EXPECTED_ARCH" \
+  -e HOST_GID="$HOST_GID" \
+  -e HOST_UID="$HOST_UID" \
+  -e PACKAGE_VERSION="$PACKAGE_VERSION" \
   -e ROS_DISTRO="$ROS_DISTRO" \
   -v "$REPO_ROOT:/workspace/repo:ro" \
   -v "$WORK_DIR:/workspace/work" \
@@ -33,6 +42,10 @@ docker run --rm \
   "$DOCKER_IMAGE" bash -lc '
     set -euo pipefail
     export DEBIAN_FRONTEND=noninteractive
+    return_mount_ownership() {
+      chown -R "${HOST_UID}:${HOST_GID}" /workspace/work /workspace/out
+    }
+    trap return_mount_ownership EXIT
     actual_arch="$(dpkg --print-architecture)"
     [[ -z "${EXPECTED_ARCH}" || "${actual_arch}" == "${EXPECTED_ARCH}" ]] \
       || { echo "container architecture ${actual_arch} != ${EXPECTED_ARCH}" >&2; exit 1; }

@@ -9,7 +9,12 @@ import sys
 import time
 
 from xgc2_b2_link.rate import RateGate
-from xgc2_b2_link.sim_models import DRIVER_LEG_JOINTS, odom_circle, walk_leg_positions
+from xgc2_b2_link.sim_models import (
+    BASE_FRAME,
+    DRIVER_LEG_JOINTS,
+    odom_circle,
+    walk_leg_positions,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -115,6 +120,7 @@ def run(args: argparse.Namespace) -> int:
             if self.gates["joint"].allow():
                 message = JointState()
                 message.header.stamp = self._stamp()
+                message.header.frame_id = BASE_FRAME
                 message.name = list(DRIVER_LEG_JOINTS)
                 message.position = walk_leg_positions(elapsed)
                 message.velocity = [0.0] * len(message.name)

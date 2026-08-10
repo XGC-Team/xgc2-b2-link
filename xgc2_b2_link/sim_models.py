@@ -134,7 +134,7 @@ def odom_circle(
 def joint_state_msg(names: Sequence[str], positions: Sequence[float], t_ms: int) -> Dict:
     return {
         "v": 1,
-        "header": {"frame_id": "", "stamp_ms": t_ms},
+        "header": {"frame_id": BASE_FRAME, "stamp_ms": t_ms},
         "name": list(names),
         "position": [float(p) for p in positions],
         "velocity": [0.0] * len(names),
