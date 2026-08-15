@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 ROS_DISTRO="${XGC2_B2_ROS_DISTRO:-jazzy}"
 UBUNTU_CODENAME="${UBUNTU_CODENAME:-noble}"
-DOCKER_IMAGE="${DOCKER_IMAGE:-ros:${ROS_DISTRO}-ros-base-${UBUNTU_CODENAME}}"
+DOCKER_IMAGE="${DOCKER_IMAGE:-ghcr.io/xgc-team/xgc2-images/xgc2-build-noble-ros-jazzy:1.0.0}"
 WORK_DIR="${WORK_DIR:-${REPO_ROOT}/.work/docker-${ROS_DISTRO}}"
 OUTPUT_DIR="${OUTPUT_DIR:-${REPO_ROOT}/debs}"
 EXPECTED_ARCH="${EXPECTED_ARCH:-}"
@@ -49,12 +49,16 @@ docker run --rm \
     actual_arch="$(dpkg --print-architecture)"
     [[ -z "${EXPECTED_ARCH}" || "${actual_arch}" == "${EXPECTED_ARCH}" ]] \
       || { echo "container architecture ${actual_arch} != ${EXPECTED_ARCH}" >&2; exit 1; }
-    apt-get update
-    apt-get install -y --no-install-recommends \
-      dpkg-dev fakeroot ripgrep rsync python3-colcon-common-extensions python3-pytest python3-yaml \
-      "ros-${ROS_DISTRO}-rclpy" \
-      "ros-${ROS_DISTRO}-nav-msgs" "ros-${ROS_DISTRO}-sensor-msgs" \
-      "ros-${ROS_DISTRO}-diagnostic-msgs" "ros-${ROS_DISTRO}-std-msgs"
+    for pkg in dpkg-dev fakeroot rsync python3-pytest python3-yaml \
+      "ros-${ROS_DISTRO}-rclpy" "ros-${ROS_DISTRO}-nav-msgs" \
+      "ros-${ROS_DISTRO}-sensor-msgs" "ros-${ROS_DISTRO}-diagnostic-msgs" \
+      "ros-${ROS_DISTRO}-std-msgs"
+    do
+      if ! dpkg -s "${pkg}" >/dev/null 2>&1; then
+        echo "image is missing ${pkg}; use xgc2-build-noble-ros-jazzy" >&2
+        exit 1
+      fi
+    done
     find /workspace/work -mindepth 1 -maxdepth 1 \
       \( -name build -o -name install -o -name log -o -name src -o -name install-root \) \
       -exec rm -rf {} +

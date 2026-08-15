@@ -12,13 +12,11 @@ defaults:
 jobs:
   compliance:
     runs-on: ubuntu-latest
+    container: ghcr.io/xgc-team/xgc2-images/xgc2-build-noble-dev:1.0.0
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-
-      - name: Install compliance dependencies
-        run: sudo apt-get update && sudo apt-get install -y ripgrep python3-pytest python3-yaml
 
       - name: Run metadata checks
         run: |
