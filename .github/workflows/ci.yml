@@ -17,6 +17,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+      - name: Run metadata checks
+        run: |
+          set -euo pipefail
+          git diff --check HEAD
+          .xgc2/scripts/check_package_compliance.sh
   build-debs:
     strategy:
       fail-fast: false
@@ -31,14 +36,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-
-
-      - name: Run metadata checks
-        run: |
-          set -euo pipefail
-          git diff --check HEAD
-          .xgc2/scripts/check_package_compliance.sh
-
 
       - name: Build and inspect onboard deb package
         env:
