@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROS_DISTRO="${XGC2_B2_ROS_DISTRO:-jazzy}"
 PACKAGE="ros-${ROS_DISTRO}-xgc2-b2-link"
-EXPECTED_VERSION="${EXPECTED_VERSION:-0.1.3}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-0.1.3-1}"
 PREFIX="/opt/ros/${ROS_DISTRO}"
 ROS_PACKAGE="xgc2_b2_link"
 
