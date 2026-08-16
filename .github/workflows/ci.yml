@@ -20,7 +20,7 @@ jobs:
       - name: Run metadata checks
         run: |
           set -euo pipefail
-          git diff --check HEAD
+          git --git-dir="$PWD/.git" --work-tree="$PWD" diff --check HEAD
           .xgc2/scripts/check_package_compliance.sh
   build-debs:
     strategy:
