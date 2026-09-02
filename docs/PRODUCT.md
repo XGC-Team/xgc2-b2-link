@@ -37,7 +37,7 @@
 ## 开发阶段（源码合同测试）
 
 ```bash
-cd xgc2-devops/products/ros2/driver/xgc2_b2_link
+cd devops/products/ros2/driver/xgc2_b2_link
 export PYTHONPATH=$PWD
 # 契约单测 + TCP 环回
 python3 -m pytest test/ -q
